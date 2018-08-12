@@ -1,0 +1,106 @@
+package com.simplexorg.mapfragment.util;
+
+import android.graphics.Point;
+import android.util.Log;
+import android.view.View.OnClickListener;
+
+import com.simplexorg.mapfragment.map.BaseMapPresenter;
+import com.simplexorg.mapfragment.map.BaseMapView;
+import com.simplexorg.mapfragment.map.BaseOnCameraIdleListener;
+import com.simplexorg.mapfragment.map.BaseOnInfoWindowClickListener;
+import com.simplexorg.mapfragment.map.BaseOnMapClickListener;
+import com.simplexorg.mapfragment.map.BaseOnMapReadyCallback;
+import com.simplexorg.mapfragment.marker.BaseMarker;
+import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
+import com.simplexorg.mapfragment.marker.BaseOnMarkerClickListener;
+import com.simplexorg.mapfragment.model.GeoPoint;
+
+/**
+ * Used as place holder for map view until real map view is instantiated.
+ * This avoids null checks and null pointer crashes due to accessing a null map view.
+ */
+public class DumbBaseMapView implements BaseMapView {
+    private static final String TAG = DumbBaseMapView.class.getSimpleName();
+    private static final String PREFIX = "Uninitialized: default implementation called: ";
+
+    @Override
+    public boolean setMapStyle(Object... objects) {
+        Log.d(TAG,  PREFIX + "setMapStyle(Object... objects)");
+        return false;
+    }
+
+    @Override
+    public OnClickListener getMyLocationClickListener() {
+        Log.d(TAG,  PREFIX + "getMyLocationClickListener()");
+        return null;
+    }
+
+    @Override
+    public Point projectToScreenLocation(GeoPoint geoPoint) {
+        Log.d(TAG,  PREFIX + "projectToScreenLocation(GeoPoint geoPoint)");
+        return null;
+    }
+
+    @Override
+    public GeoPoint getCameraLocationCenter() {
+        Log.d(TAG,  PREFIX + "getCameraLocationCenter()");
+        return null;
+    }
+
+    @Override
+    public void animateCamera(GeoPoint geoPoint, float zoomLevel) {
+        Log.d(TAG,  PREFIX + "animateCamera(GeoPoint geoPoint, float zoomLevel)");
+    }
+
+    @Override
+    public float getCameraZoomLevel() {
+        Log.d(TAG,  PREFIX + "getCameraZoomLevel()");
+        return 0;
+    }
+
+    @Override
+    public BaseMarker addMarker(BaseMarkerOptions options) {
+        Log.d(TAG,  PREFIX + "addMarker(BaseMarkerOptions options)");
+        return null;
+    }
+
+    @Override
+    public void setOnMapClickListener(BaseOnMapClickListener listener) {
+        Log.d(TAG,  PREFIX + "setOnMapClickListener(BaseOnMapClickListener listener)");
+    }
+
+    @Override
+    public void setOnMarkerClickListener(BaseOnMarkerClickListener listener) {
+        Log.d(TAG,  PREFIX + "setOnMarkerClickListener(BaseOnMarkerClickListener listener)");
+    }
+
+    @Override
+    public void setOnCameraIdleListener(BaseOnCameraIdleListener listener) {
+        Log.d(TAG,  PREFIX + "setOnCameraIdleListener(BaseOnCameraIdleListener listener)");
+    }
+
+    @Override
+    public void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener) {
+        Log.d(TAG,  PREFIX + "setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener)");
+    }
+
+    @Override
+    public void setOnMapReadyCallback(BaseOnMapReadyCallback callback) {
+        Log.d(TAG,  PREFIX + "setOnMapReadyCallback(BaseOnMapReadyCallback callback)");
+    }
+
+    @Override
+    public void hideMarkers() {
+        Log.d(TAG,  PREFIX + "hideMarkers()");
+    }
+
+    @Override
+    public void displayMarkers() {
+        Log.d(TAG,  PREFIX + "displayMarkers()");
+    }
+
+    @Override
+    public void setPresenter(BaseMapPresenter presenter) {
+        Log.d(TAG,  PREFIX + "setPresenter(BaseMapPresenter presenter)");
+    }
+}
