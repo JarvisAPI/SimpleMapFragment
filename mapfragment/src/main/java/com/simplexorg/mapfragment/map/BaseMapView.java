@@ -25,6 +25,8 @@ public interface BaseMapView {
 
     void animateCamera(GeoPoint geoPoint, float zoomLevel);
 
+    void animateCamera(GeoPoint geoPoint, float zoomLevel, BaseCancelableCallback callback);
+
     float getCameraZoomLevel();
 
     BaseMarker addMarker(BaseMarkerOptions options);
@@ -36,8 +38,6 @@ public interface BaseMapView {
     void setOnCameraIdleListener(BaseOnCameraIdleListener listener);
 
     void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener);
-
-    void setOnMapReadyCallback(BaseOnMapReadyCallback callback);
 
     void hideMarkers();
 

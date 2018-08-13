@@ -4,12 +4,12 @@ import android.graphics.Point;
 import android.util.Log;
 import android.view.View.OnClickListener;
 
+import com.simplexorg.mapfragment.map.BaseCancelableCallback;
 import com.simplexorg.mapfragment.map.BaseMapPresenter;
 import com.simplexorg.mapfragment.map.BaseMapView;
 import com.simplexorg.mapfragment.map.BaseOnCameraIdleListener;
 import com.simplexorg.mapfragment.map.BaseOnInfoWindowClickListener;
 import com.simplexorg.mapfragment.map.BaseOnMapClickListener;
-import com.simplexorg.mapfragment.map.BaseOnMapReadyCallback;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.marker.BaseOnMarkerClickListener;
@@ -53,6 +53,11 @@ public class DumbBaseMapView implements BaseMapView {
     }
 
     @Override
+    public void animateCamera(GeoPoint geoPoint, float zoomLevel, BaseCancelableCallback callback) {
+        Log.d(TAG,  PREFIX + "animateCamera(GeoPoint geoPoint, float zoomLevel, BaseCancelableCallback callback)");
+    }
+
+    @Override
     public float getCameraZoomLevel() {
         Log.d(TAG,  PREFIX + "getCameraZoomLevel()");
         return 0;
@@ -82,11 +87,6 @@ public class DumbBaseMapView implements BaseMapView {
     @Override
     public void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener) {
         Log.d(TAG,  PREFIX + "setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener)");
-    }
-
-    @Override
-    public void setOnMapReadyCallback(BaseOnMapReadyCallback callback) {
-        Log.d(TAG,  PREFIX + "setOnMapReadyCallback(BaseOnMapReadyCallback callback)");
     }
 
     @Override

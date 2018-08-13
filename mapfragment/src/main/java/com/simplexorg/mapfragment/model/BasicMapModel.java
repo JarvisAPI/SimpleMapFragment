@@ -15,6 +15,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
         mIconModels = new ArrayList<>();
     }
 
+    @Override
     public void setDataRetriever(BaseModelDataRetriever<SelectableIconModel> dataRetriever) {
         mDataRetriever = dataRetriever;
     }
@@ -26,6 +27,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
                 Log.d(TAG, "retrieved modelList: " + modelList);
                 mIconModels.clear();
                 mIconModels.addAll(modelList);
+                onModelUpdateListener.onModelUpdate();
             }, geoPoint);
         }
     }

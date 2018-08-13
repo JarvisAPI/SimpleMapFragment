@@ -2,18 +2,16 @@ package com.simplexorg.mapfragment.map;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -29,11 +27,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class GoogleMapView implements BaseMapView,
-        OnMapReadyCallback, OnMapClickListener, OnCameraIdleListener, OnMarkerClickListener,
+        OnMapClickListener, OnCameraIdleListener, OnMarkerClickListener,
         OnInfoWindowClickListener {
     private static final String TAG = GoogleMapView.class.getSimpleName();
-    private MapView mMapView;
     private GoogleMap mMap;
+    private View mView;
     private BaseMapPresenter mPresenter;
     private Map<Marker, BaseMarker> mMarkerMapping;
 
@@ -41,12 +39,20 @@ public class GoogleMapView implements BaseMapView,
     private BaseOnMapClickListener mOnMapClickListener;
     private BaseOnMarkerClickListener mOnMarkerClickListener;
     private BaseOnInfoWindowClickListener mOnInfoWindowClickListener;
-    private BaseOnMapReadyCallback mOnMapReadyCallback;
 
-    public GoogleMapView(MapView mapView, Bundle savedInstanceState) {
-        mMapView = mapView;
-        mMapView.onCreate(savedInstanceState);
-        mMapView.getMapAsync(this);
+    public GoogleMapView(GoogleMap googleMap, View view) {
+        Log.d(TAG, "Google Map Ready");
+        mMap = googleMap;
+        mView = view;
+
+        mMap.getUiSettings().setCompassEnabled(false);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        mMap.setOnCameraIdleListener(this);
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMapClickListener(this);
+        mMap.setOnInfoWindowClickListener(this);
+
         mMarkerMapping = new HashMap<>();
     }
 
@@ -65,28 +71,10 @@ public class GoogleMapView implements BaseMapView,
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        Log.d(TAG, "Google Map Ready");
-        mMap = googleMap;
-
-        mMap.getUiSettings().setCompassEnabled(false);
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-
-        mMap.setOnCameraIdleListener(this);
-        mMap.setOnMarkerClickListener(this);
-        mMap.setOnMapClickListener(this);
-        mMap.setOnInfoWindowClickListener(this);
-
-        if (mOnMapReadyCallback != null) {
-            mOnMapReadyCallback.onMapReady();
-        }
-    }
-
-    @Override
     public OnClickListener getMyLocationClickListener() throws SecurityException {
         mMap.setMyLocationEnabled(true);
-        if (mMapView.findViewById(Integer.parseInt("1")) != null) {
-            final View myLocationButton = ((View) mMapView.findViewById(Integer.parseInt("1"))
+        if (mView.findViewById(Integer.parseInt("1")) != null) {
+            final View myLocationButton = ((View) mView.findViewById(Integer.parseInt("1"))
                     .getParent()).findViewById(Integer.parseInt("2"));
             myLocationButton.setVisibility(View.GONE);
             return (View view) -> myLocationButton.performClick();
@@ -111,6 +99,26 @@ public class GoogleMapView implements BaseMapView,
                 .zoom(zoomLevel)
                 .build();
         mMap.animateCamera(Factory.getInstance().createCameraUpdate(cameraPosition));
+    }
+
+    @Override
+    public void animateCamera(GeoPoint geoPoint, float zoomLevel, BaseCancelableCallback callback) {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(Factory.getInstance().createLatLng(geoPoint))
+                .zoom(zoomLevel)
+                .build();
+        mMap.animateCamera(Factory.getInstance().createCameraUpdate(cameraPosition),
+                new CancelableCallback() {
+                    @Override
+                    public void onFinish() {
+                        callback.onFinish();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        callback.onCancel();
+                    }
+                });
     }
 
     @Override
@@ -187,11 +195,6 @@ public class GoogleMapView implements BaseMapView,
     @Override
     public void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener) {
         mOnInfoWindowClickListener = listener;
-    }
-
-    @Override
-    public void setOnMapReadyCallback(BaseOnMapReadyCallback callback) {
-        mOnMapReadyCallback = callback;
     }
 
     @Override

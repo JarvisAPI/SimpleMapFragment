@@ -6,13 +6,14 @@ import android.util.Log;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.model.BaseMapModel;
+import com.simplexorg.mapfragment.model.BaseOnModelUpdateListener;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicMapPresenter implements BaseMapPresenter {
+public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateListener {
     private static final String TAG = BasicMapPresenter.class.getSimpleName();
 
     private BaseMapView mMapView;
@@ -23,7 +24,7 @@ public class BasicMapPresenter implements BaseMapPresenter {
 
     private List<BaseMarker> mCurrentMarkers;
 
-    public BasicMapPresenter() {
+    private BasicMapPresenter() {
         mCurrentMarkers = new ArrayList<>();
     }
 
@@ -32,10 +33,12 @@ public class BasicMapPresenter implements BaseMapPresenter {
         presenter.mMapView = baseMapView;
         presenter.mMapModel = baseMapModel;
         baseMapView.setPresenter(presenter);
+        presenter.onCameraIdle();
     }
 
     @Override
     public void onCameraIdle() {
+        Log.d(TAG, "onCameraIdle");
         float MARKER_DISPLAY_ZOOM_LEVEL = 17f;
         float MAX_DEVIATION_DISTANCE = 500;
         GeoPoint currentCameraCenter = mMapView.getCameraLocationCenter();
@@ -47,11 +50,7 @@ public class BasicMapPresenter implements BaseMapPresenter {
         if (mMapView.getCameraZoomLevel() >= MARKER_DISPLAY_ZOOM_LEVEL) {
             if (GeoPoint.distance(currentCameraCenter, mLastCameraCenter) > MAX_DEVIATION_DISTANCE) {
                 mLastCameraCenter = currentCameraCenter;
-                mMapModel.loadData(currentCameraCenter, () -> {
-                    Log.d(TAG, "Model Update Event Received!");
-                    List<SelectableIconModel> newIconModels = mMapModel.getIconModels();
-                    updateMapMarkers(newIconModels);
-                });
+                mMapModel.loadData(currentCameraCenter, this);
             }
         }
     }
@@ -60,8 +59,10 @@ public class BasicMapPresenter implements BaseMapPresenter {
         // For each new icon if it's not in the old icon list then we add it to the map.
         for (SelectableIconModel newIconModel : newIconModels) {
             boolean match = false;
+            Log.d(TAG, "newIconModelId: " + newIconModel.getId());
             for (BaseMarker oldMarker : mCurrentMarkers) {
                 SelectableIconModel oldIconModel = getIconModel(oldMarker);
+                Log.d(TAG, "oldIconId: " + oldIconModel.getId());
                 if (oldIconModel.getId().equals(newIconModel.getId())) {
                     match = true;
                     break;
@@ -74,8 +75,8 @@ public class BasicMapPresenter implements BaseMapPresenter {
         // For each old icon if it's not in the new icon list then we remove it from the map.
         for (int i = 0; i < mCurrentMarkers.size(); i++) {
             boolean match = false;
+            SelectableIconModel oldIconModel = getIconModel(mCurrentMarkers.get(i));
             for (SelectableIconModel newIconModel : newIconModels) {
-                SelectableIconModel oldIconModel = getIconModel(mCurrentMarkers.get(i));
                 if (oldIconModel.getId().equals(newIconModel.getId())) {
                     match = true;
                     break;
@@ -100,45 +101,53 @@ public class BasicMapPresenter implements BaseMapPresenter {
 
     /**
      * Add marker to the map.
+     *
      * @param iconModel the icon mode.
      */
     private void addMarker(SelectableIconModel iconModel) {
+        Log.d(TAG, "addMarker in presenter!");
         BaseMarker baseMarker = mMapView.addMarker(new BaseMarkerOptions()
                 .position(iconModel.getPos())
                 .icon(iconModel.getNormalResId()));
         baseMarker.setTag(iconModel);
+        mCurrentMarkers.add(baseMarker);
         baseMarker.setAlpha(0);
     }
 
     @Override
     public void onMarkerClick(BaseMarker marker) {
+        if (marker.getTag() == null) {
+            return;
+        }
         if (mLastClickedMarker == null) {
             mLastClickedMarker = marker;
-            selectIcon(mLastClickedMarker, getIconModel(marker));
+            selectMarker(mLastClickedMarker);
             return;
         }
         if (mLastClickedMarker == marker) {
             if (getIconModel(mLastClickedMarker).getState() == SelectableIconModel.NORMAL) {
-                selectIcon(mLastClickedMarker, getIconModel(mLastClickedMarker));
+                selectMarker(mLastClickedMarker);
             } else {
-                deselectIcon(mLastClickedMarker, getIconModel(mLastClickedMarker));
+                deselectMarker(mLastClickedMarker);
             }
         } else {
-            deselectIcon(mLastClickedMarker, getIconModel(mLastClickedMarker));
-            selectIcon(marker, getIconModel(marker));
+            deselectMarker(mLastClickedMarker);
+            selectMarker(marker);
             mLastClickedMarker = marker;
         }
         marker.showInfoWindow();
     }
 
-    private void selectIcon(BaseMarker baseMarker, SelectableIconModel iconModel) {
+    private void selectMarker(BaseMarker baseMarker) {
         baseMarker.showInfoWindow();
+        SelectableIconModel iconModel = getIconModel(baseMarker);
         iconModel.changeState(SelectableIconModel.SELECTED);
         baseMarker.setIcon(iconModel.getSelectedResId());
     }
 
-    private void deselectIcon(BaseMarker baseMarker, SelectableIconModel iconModel) {
+    private void deselectMarker(BaseMarker baseMarker) {
         baseMarker.hideInfoWindow();
+        SelectableIconModel iconModel = getIconModel(baseMarker);
         iconModel.changeState(SelectableIconModel.NORMAL);
         baseMarker.setIcon(iconModel.getNormalResId());
     }
@@ -146,8 +155,16 @@ public class BasicMapPresenter implements BaseMapPresenter {
     @Override
     public void onMapClick(GeoPoint geoPoint) {
         if (mLastClickedMarker != null) {
-            deselectIcon(mLastClickedMarker, getIconModel(mLastClickedMarker));
+            deselectMarker(mLastClickedMarker);
             mLastClickedMarker = null;
         }
+    }
+
+    @Override
+    public void onModelUpdate() {
+        Log.d(TAG, "Model Update Event Received!");
+        List<SelectableIconModel> newIconModels = mMapModel.getIconModels();
+        updateMapMarkers(newIconModels);
+        mMapView.displayMarkers();
     }
 }

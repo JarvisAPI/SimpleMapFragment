@@ -2,13 +2,13 @@ package com.simplexorg.mapfragment.util;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -45,8 +45,8 @@ public class Factory {
         return new GeoPoint(latitude, longitude);
     }
 
-    public BaseMapView createBaseMapView(MapView mapView, Bundle savedInstanceState) {
-        return new GoogleMapView(mapView, savedInstanceState);
+    public BaseMapView createBaseMapView(GoogleMap googleMap, View mapView) {
+        return new GoogleMapView(googleMap, mapView);
     }
 
     public BaseMapView createDumbBaseMapView() {
