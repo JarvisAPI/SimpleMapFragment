@@ -2,6 +2,7 @@ package com.simplexorg.mapfragment.map;
 
 
 import android.graphics.Point;
+import android.os.Bundle;
 import android.view.View.OnClickListener;
 
 import com.simplexorg.mapfragment.marker.BaseMarker;
@@ -9,6 +10,9 @@ import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.marker.BaseOnMarkerClickListener;
 import com.simplexorg.mapfragment.model.GeoPoint;
 
+/**
+ * Manages the map and all the markers on it.
+ */
 public interface BaseMapView {
     /**
      * Optional.
@@ -39,9 +43,9 @@ public interface BaseMapView {
 
     void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener);
 
-    void hideMarkers();
-
-    void displayMarkers();
-
     void setPresenter(BaseMapPresenter presenter);
+
+    void onSaveInstanceState(Bundle outState);
+
+    void onRestoreInstanceState(Bundle savedInstanceState);
 }

@@ -1,6 +1,7 @@
 package com.simplexorg.mapfragment.util;
 
 import android.graphics.Point;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View.OnClickListener;
 
@@ -102,5 +103,15 @@ public class DumbBaseMapView implements BaseMapView {
     @Override
     public void setPresenter(BaseMapPresenter presenter) {
         Log.d(TAG,  PREFIX + "setPresenter(BaseMapPresenter presenter)");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, PREFIX + "onSaveInstanceState(Bundle outState)");
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.d(TAG, PREFIX + "onRestoreInstanceState(Bundle savedInstanceState)");
     }
 }

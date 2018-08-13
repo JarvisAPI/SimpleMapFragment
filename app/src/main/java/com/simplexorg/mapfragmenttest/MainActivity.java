@@ -41,11 +41,15 @@ public class MainActivity extends AppCompatActivity {
             });
             mMapFragment.setDataRetriever((OnModelsRetrievedListener<SelectableIconModel> listener, GeoPoint geoPoint) -> {
                 List<SelectableIconModel> models = new ArrayList<>();
-                models.add(new SelectableIconModel("0", mLoc,
-                        R.drawable.basic_general_store_icon_v0,
-                        R.drawable.basic_general_store_icon_selected_v0));
+                models.add(new SelectableIconModel.Builder()
+                        .id("0")
+                        .position(mLoc)
+                        .normalResId(R.drawable.basic_general_store_icon_v0)
+                        .selectedResId(R.drawable.basic_general_store_icon_selected_v0)
+                        .name("Marker")
+                        .description("Snippet")
+                        .build());
                 listener.onModelsRetrieved(models);
-
             });
         });
     }

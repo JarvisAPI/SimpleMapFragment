@@ -1,26 +1,28 @@
 package com.simplexorg.mapfragment.map;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.model.BaseMapModel;
-import com.simplexorg.mapfragment.model.BaseOnModelUpdateListener;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateListener {
+public class BasicMapPresenter implements BaseMapPresenter {
     private static final String TAG = BasicMapPresenter.class.getSimpleName();
+    private static final String PARCEL_CAM_LOC = "lastCamLoc";
 
     private BaseMapView mMapView;
     private BaseMapModel<SelectableIconModel> mMapModel;
 
     private GeoPoint mLastCameraCenter;
     private BaseMarker mLastClickedMarker;
+    private boolean mCurrentMarkersRefreshed;
 
     private List<BaseMarker> mCurrentMarkers;
 
@@ -28,12 +30,14 @@ public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateLis
         mCurrentMarkers = new ArrayList<>();
     }
 
-    static void attach(BaseMapView baseMapView, BaseMapModel<SelectableIconModel> baseMapModel) {
+    static BasicMapPresenter attach(BaseMapView baseMapView, BaseMapModel<SelectableIconModel> baseMapModel) {
         BasicMapPresenter presenter = new BasicMapPresenter();
         presenter.mMapView = baseMapView;
         presenter.mMapModel = baseMapModel;
         baseMapView.setPresenter(presenter);
+        baseMapModel.setObserver(presenter);
         presenter.onCameraIdle();
+        return presenter;
     }
 
     @Override
@@ -50,8 +54,26 @@ public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateLis
         if (mMapView.getCameraZoomLevel() >= MARKER_DISPLAY_ZOOM_LEVEL) {
             if (GeoPoint.distance(currentCameraCenter, mLastCameraCenter) > MAX_DEVIATION_DISTANCE) {
                 mLastCameraCenter = currentCameraCenter;
-                mMapModel.loadData(currentCameraCenter, this);
+                mMapModel.loadData(currentCameraCenter);
+            } else if (!mCurrentMarkersRefreshed) {
+                displayMarkers();
+                mCurrentMarkersRefreshed = true;
             }
+        } else {
+            hideMarkers();
+            mCurrentMarkersRefreshed = false;
+        }
+    }
+
+    private void displayMarkers() {
+        for (BaseMarker baseMarker : mCurrentMarkers) {
+            baseMarker.displayMarker();
+        }
+    }
+
+    private void hideMarkers() {
+        for (BaseMarker baseMarker : mCurrentMarkers) {
+            baseMarker.hideMarker();
         }
     }
 
@@ -106,9 +128,12 @@ public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateLis
      */
     private void addMarker(SelectableIconModel iconModel) {
         Log.d(TAG, "addMarker in presenter!");
+        int iconRes = iconModel.getState() == SelectableIconModel.NORMAL ?
+                iconModel.getNormalResId() :
+                iconModel.getSelectedResId();
         BaseMarker baseMarker = mMapView.addMarker(new BaseMarkerOptions()
                 .position(iconModel.getPos())
-                .icon(iconModel.getNormalResId()));
+                .icon(iconRes));
         baseMarker.setTag(iconModel);
         mCurrentMarkers.add(baseMarker);
         baseMarker.setAlpha(0);
@@ -121,8 +146,6 @@ public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateLis
         }
         if (mLastClickedMarker == null) {
             mLastClickedMarker = marker;
-            selectMarker(mLastClickedMarker);
-            return;
         }
         if (mLastClickedMarker == marker) {
             if (getIconModel(mLastClickedMarker).getState() == SelectableIconModel.NORMAL) {
@@ -161,10 +184,21 @@ public class BasicMapPresenter implements BaseMapPresenter, BaseOnModelUpdateLis
     }
 
     @Override
-    public void onModelUpdate() {
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(PARCEL_CAM_LOC, mLastCameraCenter);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        mLastCameraCenter = savedInstanceState.getParcelable(PARCEL_CAM_LOC);
+        update();
+    }
+
+    @Override
+    public void update() {
         Log.d(TAG, "Model Update Event Received!");
         List<SelectableIconModel> newIconModels = mMapModel.getIconModels();
         updateMapMarkers(newIconModels);
-        mMapView.displayMarkers();
+        displayMarkers();
     }
 }

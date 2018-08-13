@@ -2,6 +2,8 @@ package com.simplexorg.mapfragment.map;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,12 +21,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.marker.BaseOnMarkerClickListener;
+import com.simplexorg.mapfragment.marker.GoogleMarker;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.util.Factory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class GoogleMapView implements BaseMapView,
         OnMapClickListener, OnCameraIdleListener, OnMarkerClickListener,
@@ -33,7 +32,6 @@ public class GoogleMapView implements BaseMapView,
     private GoogleMap mMap;
     private View mView;
     private BaseMapPresenter mPresenter;
-    private Map<Marker, BaseMarker> mMarkerMapping;
 
     private BaseOnCameraIdleListener mOnCameraIdleListener;
     private BaseOnMapClickListener mOnMapClickListener;
@@ -52,8 +50,6 @@ public class GoogleMapView implements BaseMapView,
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
-
-        mMarkerMapping = new HashMap<>();
     }
 
     @Override
@@ -129,9 +125,9 @@ public class GoogleMapView implements BaseMapView,
     @Override
     public BaseMarker addMarker(BaseMarkerOptions options) {
         Marker marker = mMap.addMarker(getMarkerOptions(options));
-        BaseMarker baseMarker = Factory.getInstance().createBaseMarker(marker);
-        mMarkerMapping.put(marker, baseMarker);
-        return baseMarker;
+        GoogleMarker googleMarker = Factory.getInstance().createGoogleMarker(marker);
+        marker.setTag(googleMarker);
+        return googleMarker;
     }
 
     private MarkerOptions getMarkerOptions(BaseMarkerOptions options) {
@@ -151,30 +147,18 @@ public class GoogleMapView implements BaseMapView,
     }
 
     @Override
-    public void hideMarkers() {
-        Set<Marker> markerKeys = mMarkerMapping.keySet();
-        for (Marker key : markerKeys) {
-            BaseMarker baseMarker = mMarkerMapping.get(key);
-            if (baseMarker.getAlpha() >= 1) {
-                Factory.getInstance().createExitAnimator(baseMarker).start();
-            }
-        }
-    }
-
-    @Override
-    public void displayMarkers() {
-        Set<Marker> markerKeys = mMarkerMapping.keySet();
-        for (Marker key : markerKeys) {
-            BaseMarker baseMarker = mMarkerMapping.get(key);
-            if (baseMarker.getAlpha() <= 0) {
-                Factory.getInstance().createEnterAnimator(baseMarker).start();
-            }
-        }
-    }
-
-    @Override
     public void setPresenter(BaseMapPresenter presenter) {
         mPresenter = presenter;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+
     }
 
     @Override
@@ -216,7 +200,7 @@ public class GoogleMapView implements BaseMapView,
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        BaseMarker baseMarker = mMarkerMapping.get(marker);
+        BaseMarker baseMarker = (GoogleMarker) marker.getTag();
         mPresenter.onMarkerClick(baseMarker);
         if (mOnMarkerClickListener != null) {
             mOnMarkerClickListener.onMarkerClick(baseMarker);
@@ -226,7 +210,7 @@ public class GoogleMapView implements BaseMapView,
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        BaseMarker baseMarker = mMarkerMapping.get(marker);
+        BaseMarker baseMarker = (GoogleMarker) marker.getTag();
         if (mOnInfoWindowClickListener != null) {
             mOnInfoWindowClickListener.onInfoWindowClick(baseMarker);
         }

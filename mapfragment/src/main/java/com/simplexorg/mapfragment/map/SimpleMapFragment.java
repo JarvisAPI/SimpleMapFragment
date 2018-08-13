@@ -23,6 +23,7 @@ import com.simplexorg.mapfragment.util.Factory;
 public class SimpleMapFragment extends SupportMapFragment {
     private static final String TAG = SimpleMapFragment.class.getSimpleName();
     private BaseMapView mMapView;
+    private BaseMapPresenter mMapPresenter;
     private BaseMapModel<SelectableIconModel> mMapModel;
     private BaseOnMapReadyCallback mOnMapReadyCallback;
 
@@ -36,13 +37,27 @@ public class SimpleMapFragment extends SupportMapFragment {
         getMapAsync((map) -> {
             mMapView = Factory.getInstance().createBaseMapView(map, view);
             mMapModel = Factory.getInstance().createBaseMapModel();
-            BasicMapPresenter.attach(mMapView, mMapModel);
+            mMapPresenter = BasicMapPresenter.attach(mMapView, mMapModel);
             if (mOnMapReadyCallback != null) {
                 mOnMapReadyCallback.onMapReady();
+            }
+            if (savedInstanceState != null) {
+                mMapView.onRestoreInstanceState(savedInstanceState);
+                mMapModel.onRestoreInstanceState(savedInstanceState);
+                mMapPresenter.onRestoreInstanceState(savedInstanceState);
             }
         });
         return view;
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMapView.onSaveInstanceState(outState);
+        mMapModel.onSaveInstanceState(outState);
+        mMapPresenter.onSaveInstanceState(outState);
+    }
+
 
     public void setOnMapReadyCallback(BaseOnMapReadyCallback callback) {
         mOnMapReadyCallback = callback;
@@ -99,6 +114,15 @@ public class SimpleMapFragment extends SupportMapFragment {
     public void setDataRetriever(BaseModelDataRetriever<SelectableIconModel> dataRetriever) {
         if (mMapModel != null) {
             mMapModel.setDataRetriever(dataRetriever);
+        }
+    }
+
+    /**
+     * Triggers the map to update its current list of markers.
+     */
+    public void refreshMarkers() {
+        if (mMapModel != null) {
+            mMapModel.loadData(mMapView.getCameraLocationCenter());
         }
     }
 }

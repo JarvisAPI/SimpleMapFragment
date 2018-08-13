@@ -25,8 +25,12 @@ public abstract class BaseMarker {
 
     public abstract void setIcon(int resId);
 
-    public void setTag(Object obj) {
-        mTag = obj;
+    public abstract void hideMarker();
+
+    public abstract void displayMarker();
+
+    public void setTag(Object tag) {
+        mTag = tag;
     }
 
     public Object getTag() {

@@ -65,7 +65,7 @@ public class Factory {
         return CameraUpdateFactory.newCameraPosition(cameraPosition);
     }
 
-    public BaseMarker createBaseMarker(Marker marker) {
+    public GoogleMarker createGoogleMarker(Marker marker) {
         return new GoogleMarker(marker);
     }
 
