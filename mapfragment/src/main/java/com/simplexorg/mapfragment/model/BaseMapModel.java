@@ -6,9 +6,25 @@ import java.util.List;
 
 public interface BaseMapModel<T> {
     interface Observer {
-        void update();
+        int UPDATE_MARKERS = 0;
+        int UPDATE_MARKER_DATA = 1;
+
+        void update(int type, Object result, Object parcel);
     }
-    void loadData(GeoPoint geoPoint);
+
+    /**
+     *
+     * @param geoPoint the point to load the markers from.
+     * @param parcel object that is returned by the observer on update.
+     */
+    void loadMarkers(GeoPoint geoPoint, Object parcel);
+
+    /**
+     *
+     * @param markerModel the marker model used to load the full model.
+     * @param parcel object that is returned by the observer on update.
+     */
+    void loadMarkerData(BaseMarkerModel markerModel, Object parcel);
 
     List<T> getIconModels();
 

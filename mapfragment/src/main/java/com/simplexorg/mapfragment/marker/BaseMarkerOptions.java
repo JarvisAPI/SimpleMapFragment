@@ -24,6 +24,8 @@ public class BaseMarkerOptions {
         mVisible = true;
         mAnchorU = 0.5f;
         mAnchorV = 1.0f;
+        mWindowAnchorU = 0.5f;
+        mWindowAnchorV = 0f;
     }
 
     public BaseMarkerOptions alpha(float alpha) {

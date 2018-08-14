@@ -3,16 +3,17 @@ package com.simplexorg.mapfragment.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.simplexorg.mapfragment.util.Factory;
 
-public class SelectableIconModel implements Parcelable {
+public class SelectableIconModel implements Parcelable, BaseMarkerModel {
     private String mId;
     private GeoPoint mPos;
     private int mNormalResId;
     private int mSelectedResId;
     private int mState;
-    private String mMarkerName;
+    private String mMarkerTitle;
     private String mMarkerDescription;
 
     public static final int NORMAL = 0;
@@ -42,7 +43,7 @@ public class SelectableIconModel implements Parcelable {
         mNormalResId = parcel.readInt();
         mSelectedResId = parcel.readInt();
         mState = parcel.readInt();
-        mMarkerName = parcel.readString();
+        mMarkerTitle = parcel.readString();
         mMarkerDescription = parcel.readString();
     }
 
@@ -58,6 +59,7 @@ public class SelectableIconModel implements Parcelable {
         return mDefaultSelectableIconModel;
     }
 
+    @NonNull
     public String getId() {
         return mId;
     }
@@ -78,6 +80,14 @@ public class SelectableIconModel implements Parcelable {
         return mState;
     }
 
+    public String getTitle() {
+        return mMarkerTitle;
+    }
+
+    public String getDescription() {
+        return mMarkerDescription;
+    }
+
     public void changeState(int state) {
         mState = state;
     }
@@ -94,7 +104,7 @@ public class SelectableIconModel implements Parcelable {
         parcel.writeInt(mNormalResId);
         parcel.writeInt(mSelectedResId);
         parcel.writeInt(mState);
-        parcel.writeString(mMarkerName);
+        parcel.writeString(mMarkerTitle);
         parcel.writeString(mMarkerDescription);
     }
 
@@ -104,6 +114,15 @@ public class SelectableIconModel implements Parcelable {
         public Builder() {
             mModel = new SelectableIconModel();
             mModel.mState = NORMAL;
+        }
+
+        /**
+         * Constructs a builder to modify the given model. Does not
+         * construct a new model but uses the existing one.
+         * @param model the model to modify.
+         */
+        public Builder(SelectableIconModel model) {
+            mModel = model;
         }
 
         public Builder id(String id) {
@@ -126,8 +145,8 @@ public class SelectableIconModel implements Parcelable {
             return this;
         }
 
-        public Builder name(String name) {
-            mModel.mMarkerName = name;
+        public Builder title(String title) {
+            mModel.mMarkerTitle = title;
             return this;
         }
 

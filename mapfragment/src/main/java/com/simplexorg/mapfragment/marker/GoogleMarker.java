@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.util.Factory;
 
-public class GoogleMarker implements BaseMarker {
+public class GoogleMarker extends BaseMarker {
     private Marker mMarker;
     private GeoPoint mPos;
 
@@ -57,6 +57,8 @@ public class GoogleMarker implements BaseMarker {
     @Override
     public void hideInfoWindow() {
         mMarker.hideInfoWindow();
+        mMarker.setTitle(null);
+        mMarker.setSnippet(null);
     }
 
     @Override
@@ -76,9 +78,5 @@ public class GoogleMarker implements BaseMarker {
         if (mMarker.getAlpha() <= 0) {
             Factory.getInstance().createEnterAnimator(this).start();
         }
-    }
-
-    public Marker getRealMarker() {
-        return mMarker;
     }
 }

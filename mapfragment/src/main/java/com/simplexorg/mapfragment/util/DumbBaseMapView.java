@@ -91,16 +91,6 @@ public class DumbBaseMapView implements BaseMapView {
     }
 
     @Override
-    public void hideMarkers() {
-        Log.d(TAG,  PREFIX + "hideMarkers()");
-    }
-
-    @Override
-    public void displayMarkers() {
-        Log.d(TAG,  PREFIX + "displayMarkers()");
-    }
-
-    @Override
     public void setPresenter(BaseMapPresenter presenter) {
         Log.d(TAG,  PREFIX + "setPresenter(BaseMapPresenter presenter)");
     }

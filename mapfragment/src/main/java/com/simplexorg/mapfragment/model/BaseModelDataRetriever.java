@@ -8,5 +8,11 @@ public interface BaseModelDataRetriever<T> {
         void onModelsRetrieved(List<T> modelList);
     }
 
+    interface OnModelDetailsRetrievedListener<T> {
+        void onModelDetailsRetrieved(T model);
+    }
+
     void getModels(OnModelsRetrievedListener<T> listener, GeoPoint geoPoint);
+
+    void getModelDetails(OnModelDetailsRetrievedListener<T> listener, BaseMarkerModel markerModel);
 }

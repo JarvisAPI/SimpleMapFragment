@@ -122,7 +122,7 @@ public class SimpleMapFragment extends SupportMapFragment {
      */
     public void refreshMarkers() {
         if (mMapModel != null) {
-            mMapModel.loadData(mMapView.getCameraLocationCenter());
+            mMapModel.loadMarkers(mMapView.getCameraLocationCenter(), null);
         }
     }
 }

@@ -7,6 +7,7 @@ import android.util.Log;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.model.BaseMapModel;
+import com.simplexorg.mapfragment.model.BaseMapModel.Observer;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
 
@@ -54,7 +55,7 @@ public class BasicMapPresenter implements BaseMapPresenter {
         if (mMapView.getCameraZoomLevel() >= MARKER_DISPLAY_ZOOM_LEVEL) {
             if (GeoPoint.distance(currentCameraCenter, mLastCameraCenter) > MAX_DEVIATION_DISTANCE) {
                 mLastCameraCenter = currentCameraCenter;
-                mMapModel.loadData(currentCameraCenter);
+                mMapModel.loadMarkers(currentCameraCenter, null);
             } else if (!mCurrentMarkersRefreshed) {
                 displayMarkers();
                 mCurrentMarkersRefreshed = true;
@@ -158,17 +159,17 @@ public class BasicMapPresenter implements BaseMapPresenter {
             selectMarker(marker);
             mLastClickedMarker = marker;
         }
-        marker.showInfoWindow();
     }
 
     private void selectMarker(BaseMarker baseMarker) {
-        baseMarker.showInfoWindow();
         SelectableIconModel iconModel = getIconModel(baseMarker);
         iconModel.changeState(SelectableIconModel.SELECTED);
         baseMarker.setIcon(iconModel.getSelectedResId());
+        mMapModel.loadMarkerData(iconModel, baseMarker);
     }
 
     private void deselectMarker(BaseMarker baseMarker) {
+        Log.d(TAG, "deselectMarker");
         baseMarker.hideInfoWindow();
         SelectableIconModel iconModel = getIconModel(baseMarker);
         iconModel.changeState(SelectableIconModel.NORMAL);
@@ -191,14 +192,33 @@ public class BasicMapPresenter implements BaseMapPresenter {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         mLastCameraCenter = savedInstanceState.getParcelable(PARCEL_CAM_LOC);
-        update();
+        update(Observer.UPDATE_MARKERS, null, null);
+        for (BaseMarker baseMarker : mCurrentMarkers) {
+            // Looping to restore any info windows.
+            update(UPDATE_MARKER_DATA, baseMarker.getTag(), baseMarker);
+        }
     }
 
     @Override
-    public void update() {
+    public void update(int type, Object result, Object parcel) {
         Log.d(TAG, "Model Update Event Received!");
-        List<SelectableIconModel> newIconModels = mMapModel.getIconModels();
-        updateMapMarkers(newIconModels);
-        displayMarkers();
+        switch (type) {
+            case Observer.UPDATE_MARKERS:
+                List<SelectableIconModel> newIconModels = mMapModel.getIconModels();
+                updateMapMarkers(newIconModels);
+                displayMarkers();
+                break;
+            case Observer.UPDATE_MARKER_DATA:
+                SelectableIconModel model = (SelectableIconModel) result;
+                BaseMarker baseMarker = (BaseMarker) parcel;
+                baseMarker.setTag(model);
+                baseMarker.setTitle(model.getTitle());
+                baseMarker.setSnippet(model.getDescription());
+                if (model.getState() == SelectableIconModel.SELECTED) {
+                    baseMarker.showInfoWindow();
+                }
+                break;
+        }
+
     }
 }
