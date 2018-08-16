@@ -15,7 +15,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.simplexorg.mapfragment.map.BaseMapPresenter;
 import com.simplexorg.mapfragment.map.BaseMapView;
+import com.simplexorg.mapfragment.map.BasicMapPresenter;
 import com.simplexorg.mapfragment.map.GoogleMapView;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerAnimator;
@@ -26,11 +28,17 @@ import com.simplexorg.mapfragment.model.BasicMapModel;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
 
+import java.util.ArrayList;
+
 public class Factory {
     private static Factory mFactory;
 
     private Factory() {
 
+    }
+
+    public <T> ArrayList<T> createArrayList() {
+        return new ArrayList<>();
     }
 
     public LatLng createLatLng(@NonNull GeoPoint geoPoint) {
@@ -51,6 +59,10 @@ public class Factory {
 
     public BaseMapView createDumbBaseMapView() {
         return new DumbBaseMapView();
+    }
+
+    public BaseMapPresenter<SelectableIconModel> createBaseMapPresenter() {
+        return new BasicMapPresenter();
     }
 
     public BitmapDescriptor createBitmapDescriptor(int resId) {

@@ -1,7 +1,9 @@
 package com.simplexorg.mapfragment.model;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.support.annotation.VisibleForTesting;
+
+import com.simplexorg.mapfragment.util.Factory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +13,16 @@ import static com.simplexorg.mapfragment.model.BaseMapModel.Observer.UPDATE_MARK
 
 public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
     private static final String TAG = BasicMapModel.class.getSimpleName();
-    private static final String PARCEL_MODELS = "iconModels";
+
+    @VisibleForTesting
+    static final String PARCEL_MODELS = "iconModels";
 
     private ArrayList<SelectableIconModel> mIconModels;
     private BaseModelDataRetriever<SelectableIconModel> mDataRetriever;
     private Observer mObserver;
 
     public BasicMapModel() {
-        mIconModels = new ArrayList<>();
+        mIconModels = Factory.getInstance().createArrayList();
     }
 
     @Override
@@ -44,8 +48,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
     @Override
     public void loadMarkers(GeoPoint geoPoint, Object parcel) {
         if (mDataRetriever != null) {
-            mDataRetriever.getModels((modelList) -> {
-                Log.d(TAG, "retrieved modelList: " + modelList);
+            mDataRetriever.getModels((List<SelectableIconModel> modelList) -> {
                 mIconModels.clear();
                 mIconModels.addAll(modelList);
                 if (mObserver != null) {
@@ -58,8 +61,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
     @Override
     public void loadMarkerData(BaseMarkerModel markerModel, Object parcel) {
         if (mDataRetriever != null) {
-            mDataRetriever.getModelDetails((model) -> {
-                Log.d(TAG, "retrieved model: " + model);
+            mDataRetriever.getModelDetails((SelectableIconModel model) -> {
                 if (mObserver != null) {
                     mObserver.update(UPDATE_MARKER_DATA, model, parcel);
                 }

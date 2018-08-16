@@ -4,11 +4,14 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
@@ -20,12 +23,14 @@ import com.simplexorg.mapfragment.model.SelectableIconModel;
 import com.simplexorg.mapfragment.util.Factory;
 
 
-public class SimpleMapFragment extends SupportMapFragment {
+public class SimpleMapFragment extends SupportMapFragment
+        implements OnMapReadyCallback {
     private static final String TAG = SimpleMapFragment.class.getSimpleName();
     private BaseMapView mMapView;
-    private BaseMapPresenter mMapPresenter;
+    private BaseMapPresenter<SelectableIconModel> mMapPresenter;
     private BaseMapModel<SelectableIconModel> mMapModel;
     private BaseOnMapReadyCallback mOnMapReadyCallback;
+    private Bundle mSavedInstanceState;
 
     public SimpleMapFragment() {
         mMapView = Factory.getInstance().createDumbBaseMapView();
@@ -34,19 +39,7 @@ public class SimpleMapFragment extends SupportMapFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        getMapAsync((map) -> {
-            mMapView = Factory.getInstance().createBaseMapView(map, view);
-            mMapModel = Factory.getInstance().createBaseMapModel();
-            mMapPresenter = BasicMapPresenter.attach(mMapView, mMapModel);
-            if (mOnMapReadyCallback != null) {
-                mOnMapReadyCallback.onMapReady();
-            }
-            if (savedInstanceState != null) {
-                mMapView.onRestoreInstanceState(savedInstanceState);
-                mMapModel.onRestoreInstanceState(savedInstanceState);
-                mMapPresenter.onRestoreInstanceState(savedInstanceState);
-            }
-        });
+        getMapAsync(this);
         return view;
     }
 
@@ -58,6 +51,11 @@ public class SimpleMapFragment extends SupportMapFragment {
         mMapPresenter.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
+    }
 
     public void setOnMapReadyCallback(BaseOnMapReadyCallback callback) {
         mOnMapReadyCallback = callback;
@@ -123,6 +121,23 @@ public class SimpleMapFragment extends SupportMapFragment {
     public void refreshMarkers() {
         if (mMapModel != null) {
             mMapModel.loadMarkers(mMapView.getCameraLocationCenter(), null);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMapView = Factory.getInstance().createBaseMapView(googleMap, getView());
+        mMapModel = Factory.getInstance().createBaseMapModel();
+        mMapPresenter = Factory.getInstance().createBaseMapPresenter();
+        mMapPresenter.attach(mMapView, mMapModel);
+        if (mOnMapReadyCallback != null) {
+            mOnMapReadyCallback.onMapReady();
+        }
+        if (mSavedInstanceState != null) {
+            mMapView.onRestoreInstanceState(mSavedInstanceState);
+            mMapModel.onRestoreInstanceState(mSavedInstanceState);
+            mMapPresenter.onRestoreInstanceState(mSavedInstanceState);
+            mSavedInstanceState = null;
         }
     }
 }
