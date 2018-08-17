@@ -1,6 +1,7 @@
 package com.simplexorg.mapfragment.marker;
 
 
+import com.simplexorg.mapfragment.R;
 import com.simplexorg.mapfragment.model.GeoPoint;
 
 public class BaseMarkerOptions {
@@ -26,6 +27,7 @@ public class BaseMarkerOptions {
         mAnchorV = 1.0f;
         mWindowAnchorU = 0.5f;
         mWindowAnchorV = 0f;
+        mResId = R.drawable.map_baseline_place_black_48;
     }
 
     public BaseMarkerOptions alpha(float alpha) {

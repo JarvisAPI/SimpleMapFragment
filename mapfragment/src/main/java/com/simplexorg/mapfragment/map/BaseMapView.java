@@ -21,7 +21,13 @@ public interface BaseMapView {
      */
     boolean setMapStyle(Object... objects);
 
+    void setMaxZoomPreference(float zoomPreference);
+
+    void setMyLocationEnabled(boolean enabled);
+
     OnClickListener getMyLocationClickListener();
+
+    GeoPoint projectFromScreenLocation(Point point);
 
     Point projectToScreenLocation(GeoPoint geoPoint);
 
@@ -42,6 +48,8 @@ public interface BaseMapView {
     void setOnCameraIdleListener(BaseOnCameraIdleListener listener);
 
     void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener);
+
+    void setOnMarkerDragListener(BaseOnMarkerDragListener listener);
 
     void setPresenter(BaseMapPresenter presenter);
 

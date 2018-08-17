@@ -6,7 +6,7 @@ import android.os.Parcel;
 import com.simplexorg.mapfragment.model.BaseMapModel.Observer;
 import com.simplexorg.mapfragment.model.BaseModelDataRetriever.OnModelDetailsRetrievedListener;
 import com.simplexorg.mapfragment.model.BaseModelDataRetriever.OnModelsRetrievedListener;
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,13 +31,13 @@ public class BasicMapModelUnitTest {
     @Mock private BaseModelDataRetriever<SelectableIconModel> mDataRetriever;
     @Mock private Observer mObserver;
     @Mock private ArrayList<SelectableIconModel> mIconModels;
-    @Mock private Factory mFactory;
+    @Mock private MapFactory mFactory;
 
     @Before
     public void setup() {
         initMocks(this);
         when(mFactory.createArrayList()).thenReturn((ArrayList) mIconModels);
-        Factory.setFactory(mFactory);
+        MapFactory.setFactory(mFactory);
 
         mModel = new BasicMapModel();
         mModel.setDataRetriever(mDataRetriever);
@@ -46,7 +46,7 @@ public class BasicMapModelUnitTest {
 
     @After
     public void cleanup() {
-        Factory.setFactory(null);
+        MapFactory.setFactory(null);
     }
 
     @Test

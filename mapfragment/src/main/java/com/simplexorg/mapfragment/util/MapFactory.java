@@ -2,6 +2,8 @@ package com.simplexorg.mapfragment.util;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
@@ -21,6 +23,7 @@ import com.simplexorg.mapfragment.map.BasicMapPresenter;
 import com.simplexorg.mapfragment.map.GoogleMapView;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerAnimator;
+import com.simplexorg.mapfragment.marker.DropMarkerAnimator;
 import com.simplexorg.mapfragment.marker.FadeMarkerAnimator;
 import com.simplexorg.mapfragment.marker.GoogleMarker;
 import com.simplexorg.mapfragment.model.BaseMapModel;
@@ -30,10 +33,10 @@ import com.simplexorg.mapfragment.model.SelectableIconModel;
 
 import java.util.ArrayList;
 
-public class Factory {
-    private static Factory mFactory;
+public class MapFactory {
+    private static MapFactory mFactory;
 
-    private Factory() {
+    private MapFactory() {
 
     }
 
@@ -69,6 +72,10 @@ public class Factory {
         return BitmapDescriptorFactory.fromResource(resId);
     }
 
+    public BitmapDescriptor createBitmapDescriptor(Bitmap bitmap) {
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
     public MapStyleOptions createMapStyleOptions(Context context, int resId) {
         return MapStyleOptions.loadRawResourceStyle(context, resId);
     }
@@ -93,19 +100,24 @@ public class Factory {
         return new FadeMarkerAnimator(marker, false);
     }
 
+    public BaseMarkerAnimator createDropAnimator(long duration, BaseMarker marker,
+                                                 Handler handler, GeoPoint target, GeoPoint startLatLng) {
+        return new DropMarkerAnimator(duration, marker, handler, target, startLatLng);
+    }
+
     public BaseMapModel<SelectableIconModel> createBaseMapModel() {
         return new BasicMapModel();
     }
 
-    public static Factory getInstance() {
+    public static MapFactory getInstance() {
         if (mFactory == null) {
-            mFactory = new Factory();
+            mFactory = new MapFactory();
         }
         return mFactory;
     }
 
     @VisibleForTesting
-    public static void setFactory(Factory factory) {
+    public static void setFactory(MapFactory factory) {
         mFactory = factory;
     }
 }

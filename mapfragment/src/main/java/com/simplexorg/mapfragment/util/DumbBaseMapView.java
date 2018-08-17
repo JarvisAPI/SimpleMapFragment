@@ -11,6 +11,7 @@ import com.simplexorg.mapfragment.map.BaseMapView;
 import com.simplexorg.mapfragment.map.BaseOnCameraIdleListener;
 import com.simplexorg.mapfragment.map.BaseOnInfoWindowClickListener;
 import com.simplexorg.mapfragment.map.BaseOnMapClickListener;
+import com.simplexorg.mapfragment.map.BaseOnMarkerDragListener;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.marker.BaseOnMarkerClickListener;
@@ -31,8 +32,24 @@ public class DumbBaseMapView implements BaseMapView {
     }
 
     @Override
+    public void setMaxZoomPreference(float zoomPreference) {
+        Log.d(TAG,  PREFIX + "setMaxZoomPreference(float zoomPreference)");
+    }
+
+    @Override
+    public void setMyLocationEnabled(boolean enabled) {
+        Log.d(TAG, PREFIX + "setMyLocationEnabled(boolean enabled)");
+    }
+
+    @Override
     public OnClickListener getMyLocationClickListener() {
         Log.d(TAG,  PREFIX + "getMyLocationClickListener()");
+        return null;
+    }
+
+    @Override
+    public GeoPoint projectFromScreenLocation(Point point) {
+        Log.d(TAG,  PREFIX + "projectFromScreenLocation(Point point)");
         return null;
     }
 
@@ -88,6 +105,11 @@ public class DumbBaseMapView implements BaseMapView {
     @Override
     public void setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener) {
         Log.d(TAG,  PREFIX + "setOnInfoWindowClickListener(BaseOnInfoWindowClickListener listener)");
+    }
+
+    @Override
+    public void setOnMarkerDragListener(BaseOnMarkerDragListener listener) {
+        Log.d(TAG,  PREFIX + "setOnMarkerDragListener(BaseOnMarkerDragListener listener)");
     }
 
     @Override

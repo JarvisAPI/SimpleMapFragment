@@ -36,6 +36,10 @@ public class GeoPoint implements Parcelable {
         return String.format(Locale.CHINA, "latitude: %f, longitude: %f", latitude, longitude);
     }
 
+    public String toGeoJSON() {
+        return String.format(Locale.CHINA, "[%f, %f]", longitude, latitude);
+    }
+
     @Override
     public int describeContents() {
         return hashCode();

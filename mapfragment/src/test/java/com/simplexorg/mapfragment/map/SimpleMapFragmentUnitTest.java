@@ -6,7 +6,7 @@ import android.view.View;
 import com.google.android.gms.maps.GoogleMap;
 import com.simplexorg.mapfragment.model.BaseMapModel;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
 
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +23,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SimpleMapFragmentUnitTest {
     private SimpleMapFragment mFragment;
-    @Mock private Factory mFactory;
+    @Mock private MapFactory mFactory;
     @Mock private GoogleMapView mMapView;
     @Mock private BaseMapModel<SelectableIconModel> mMapModel;
     @Mock private BaseMapPresenter<SelectableIconModel> mMapPresenter;
@@ -34,14 +34,14 @@ public class SimpleMapFragmentUnitTest {
         when(mFactory.createBaseMapView(any(GoogleMap.class), any(View.class))).thenReturn(mMapView);
         when(mFactory.createBaseMapModel()).thenReturn(mMapModel);
         when(mFactory.createBaseMapPresenter()).thenReturn(mMapPresenter);
-        Factory.setFactory(mFactory);
+        MapFactory.setFactory(mFactory);
 
         mFragment = new SimpleMapFragment();
     }
 
     @After
     public void cleanup() {
-        Factory.setFactory(null);
+        MapFactory.setFactory(null);
     }
 
     @Test

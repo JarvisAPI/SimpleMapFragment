@@ -9,7 +9,7 @@ import com.simplexorg.mapfragment.model.BaseMapModel;
 import com.simplexorg.mapfragment.model.BaseMapModel.Observer;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
-import com.simplexorg.mapfragment.util.Util;
+import com.simplexorg.mapfragment.util.MapUtil;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,11 +19,14 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.simplexorg.mapfragment.map.BasicMapPresenter.MARKER_DISPLAY_ZOOM_LEVEL;
+import static com.simplexorg.mapfragment.map.BasicMapPresenter.MAX_DEVIATION_DISTANCE;
 import static com.simplexorg.mapfragment.map.BasicMapPresenter.PARCEL_CAM_LOC;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -33,12 +36,12 @@ public class BasicMapPresenterUnitTest {
     private BasicMapPresenter mMapPresenter;
     @Mock private BaseMapView mMapView;
     @Mock private BaseMapModel<SelectableIconModel> mMapModel;
-    @Mock private Util mUtil;
+    @Mock private MapUtil mUtil;
 
     @Before
     public void setup() {
         initMocks(this);
-        Util.setUtil(mUtil);
+        MapUtil.setUtil(mUtil);
 
         mMapPresenter = new BasicMapPresenter();
         mMapPresenter.attach(mMapView, mMapModel);
@@ -46,7 +49,7 @@ public class BasicMapPresenterUnitTest {
 
     @After
     public void cleanup() {
-        Util.setUtil(null);
+        MapUtil.setUtil(null);
     }
 
     @Test
@@ -54,8 +57,8 @@ public class BasicMapPresenterUnitTest {
         GeoPoint currentCameraCenter = mock(GeoPoint.class);
         when(mMapView.getCameraLocationCenter()).thenReturn(currentCameraCenter);
 
-        when(mMapView.getCameraZoomLevel()).thenReturn(BasicMapPresenter.MARKER_DISPLAY_ZOOM_LEVEL);
-        when(mUtil.distance(any(GeoPoint.class), any(GeoPoint.class))).thenReturn((double) BasicMapPresenter.MAX_DEVIATION_DISTANCE * 2);
+        when(mMapView.getCameraZoomLevel()).thenReturn(MARKER_DISPLAY_ZOOM_LEVEL);
+        when(mUtil.distance(any(GeoPoint.class), any(GeoPoint.class))).thenReturn((double) MAX_DEVIATION_DISTANCE * 2);
 
         mMapPresenter.onCameraIdle();
         verify(mMapModel).loadMarkers(currentCameraCenter, null);
@@ -65,6 +68,7 @@ public class BasicMapPresenterUnitTest {
     public void test_onCameraIdle_displayMarkers() {
         SelectableIconModel iconModel = mock(SelectableIconModel.class);
         when(iconModel.getId()).thenReturn("id");
+        when(iconModel.getState()).thenReturn(SelectableIconModel.SELECTED);
         BaseMarker baseMarker = mock(BaseMarker.class);
         when(baseMarker.getTag()).thenReturn(iconModel);
 
@@ -75,18 +79,19 @@ public class BasicMapPresenterUnitTest {
         when(mMapView.addMarker(any(BaseMarkerOptions.class))).thenReturn(baseMarker);
 
         when(mMapView.getCameraZoomLevel()).thenReturn(BasicMapPresenter.MARKER_DISPLAY_ZOOM_LEVEL);
-        when(mUtil.distance(any(GeoPoint.class), any(GeoPoint.class))).thenReturn((double) BasicMapPresenter.MAX_DEVIATION_DISTANCE / 2);
+        when(mUtil.distance(any(GeoPoint.class), any(GeoPoint.class))).thenReturn((double) MAX_DEVIATION_DISTANCE / 2);
 
         mMapPresenter.update(Observer.UPDATE_MARKERS, null, null);
-        reset(baseMarker);
         mMapPresenter.onCameraIdle();
-        verify(baseMarker).displayMarker();
+        verify(baseMarker, times(2)).displayMarker();
+        verify(baseMarker, times(2)).showInfoWindow();
     }
 
     @Test
     public void test_onCameraIdle_hideMarkers() {
         SelectableIconModel iconModel = mock(SelectableIconModel.class);
         when(iconModel.getId()).thenReturn("id");
+        when(iconModel.getState()).thenReturn(SelectableIconModel.SELECTED);
         BaseMarker baseMarker = mock(BaseMarker.class);
         when(baseMarker.getTag()).thenReturn(iconModel);
 
@@ -101,6 +106,21 @@ public class BasicMapPresenterUnitTest {
         mMapPresenter.update(Observer.UPDATE_MARKERS, null, null);
         mMapPresenter.onCameraIdle();
         verify(baseMarker).hideMarker();
+        verify(baseMarker).hideInfoWindow();
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
+    public void test_onMarkerClick_markerIsInvisible() {
+        BaseMarker clickedMarker = mock(BaseMarker.class);
+        when(clickedMarker.getAlpha()).thenReturn(0f);
+        when(clickedMarker.getTag()).thenReturn(mock(BaseMarker.class));
+
+        mMapPresenter.onMarkerClick(clickedMarker);
+
+        verify(clickedMarker).getTag();
+        verify(clickedMarker).getAlpha();
+        verifyNoMoreInteractions(clickedMarker);
     }
 
     @Test
@@ -215,6 +235,8 @@ public class BasicMapPresenterUnitTest {
         when(iconModel.getTitle()).thenReturn("title");
         when(iconModel.getDescription()).thenReturn("description");
         when(iconModel.getState()).thenReturn(SelectableIconModel.SELECTED);
+
+        when(mMapView.getCameraZoomLevel()).thenReturn(MARKER_DISPLAY_ZOOM_LEVEL);
 
         BaseMarker baseMarker = mock(BaseMarker.class);
 

@@ -1,9 +1,12 @@
 package com.simplexorg.mapfragment.map;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,20 +17,23 @@ import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.simplexorg.mapfragment.R;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerOptions;
 import com.simplexorg.mapfragment.marker.BaseOnMarkerClickListener;
 import com.simplexorg.mapfragment.marker.GoogleMarker;
 import com.simplexorg.mapfragment.model.GeoPoint;
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
+import com.simplexorg.mapfragment.util.MapUtil;
 
 public class GoogleMapView implements BaseMapView,
         OnMapClickListener, OnCameraIdleListener, OnMarkerClickListener,
-        OnInfoWindowClickListener {
+        OnInfoWindowClickListener, OnMarkerDragListener {
     private static final String TAG = GoogleMapView.class.getSimpleName();
     private GoogleMap mMap;
     private View mView;
@@ -37,6 +43,7 @@ public class GoogleMapView implements BaseMapView,
     private BaseOnMapClickListener mOnMapClickListener;
     private BaseOnMarkerClickListener mOnMarkerClickListener;
     private BaseOnInfoWindowClickListener mOnInfoWindowClickListener;
+    private BaseOnMarkerDragListener mOnMarkerDragListener;
 
     public GoogleMapView(GoogleMap googleMap, View view) {
         Log.d(TAG, "Google Map Ready");
@@ -50,6 +57,7 @@ public class GoogleMapView implements BaseMapView,
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerDragListener(this);
     }
 
     @Override
@@ -60,10 +68,20 @@ public class GoogleMapView implements BaseMapView,
         if (arg0 instanceof Context && arg1 instanceof Integer) {
             Context context = (Context) arg0;
             int resId = (int) arg1;
-            mMap.setMapStyle(Factory.getInstance().createMapStyleOptions(context, resId));
+            mMap.setMapStyle(MapFactory.getInstance().createMapStyleOptions(context, resId));
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setMaxZoomPreference(float zoomPreference) {
+        mMap.setMaxZoomPreference(zoomPreference);
+    }
+
+    @Override
+    public void setMyLocationEnabled(boolean enabled) throws SecurityException {
+        mMap.setMyLocationEnabled(enabled);
     }
 
     @Override
@@ -79,31 +97,36 @@ public class GoogleMapView implements BaseMapView,
     }
 
     @Override
+    public GeoPoint projectFromScreenLocation(Point point) {
+        return MapFactory.getInstance().createGeoPoint(mMap.getProjection().fromScreenLocation(point));
+    }
+
+    @Override
     public Point projectToScreenLocation(GeoPoint geoPoint) {
-        return mMap.getProjection().toScreenLocation(Factory.getInstance().createLatLng(geoPoint));
+        return mMap.getProjection().toScreenLocation(MapFactory.getInstance().createLatLng(geoPoint));
     }
 
     @Override
     public GeoPoint getCameraLocationCenter() {
-        return Factory.getInstance().createGeoPoint(mMap.getCameraPosition().target);
+        return MapFactory.getInstance().createGeoPoint(mMap.getCameraPosition().target);
     }
 
     @Override
     public void animateCamera(GeoPoint geoPoint, float zoomLevel) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(Factory.getInstance().createLatLng(geoPoint))
+                .target(MapFactory.getInstance().createLatLng(geoPoint))
                 .zoom(zoomLevel)
                 .build();
-        mMap.animateCamera(Factory.getInstance().createCameraUpdate(cameraPosition));
+        mMap.animateCamera(MapFactory.getInstance().createCameraUpdate(cameraPosition));
     }
 
     @Override
     public void animateCamera(GeoPoint geoPoint, float zoomLevel, BaseCancelableCallback callback) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(Factory.getInstance().createLatLng(geoPoint))
+                .target(MapFactory.getInstance().createLatLng(geoPoint))
                 .zoom(zoomLevel)
                 .build();
-        mMap.animateCamera(Factory.getInstance().createCameraUpdate(cameraPosition),
+        mMap.animateCamera(MapFactory.getInstance().createCameraUpdate(cameraPosition),
                 new CancelableCallback() {
                     @Override
                     public void onFinish() {
@@ -125,25 +148,33 @@ public class GoogleMapView implements BaseMapView,
     @Override
     public BaseMarker addMarker(BaseMarkerOptions options) {
         Marker marker = mMap.addMarker(getMarkerOptions(options));
-        GoogleMarker googleMarker = Factory.getInstance().createGoogleMarker(marker);
+        GoogleMarker googleMarker = MapFactory.getInstance().createGoogleMarker(marker);
         marker.setTag(googleMarker);
         return googleMarker;
     }
 
     private MarkerOptions getMarkerOptions(BaseMarkerOptions options) {
-        return new MarkerOptions()
+        MarkerOptions markerOptions = new MarkerOptions()
                 .alpha(options.getAlpha())
                 .anchor(options.getAnchorU(), options.getAnchorV())
                 .draggable(options.isDraggable())
                 .flat(options.isFlat())
-                .icon(Factory.getInstance().createBitmapDescriptor(options.getIcon()))
                 .infoWindowAnchor(options.getInfoWindowAnchorU(), options.getInfoWindowAnchorV())
-                .position(Factory.getInstance().createLatLng(options.getPosition()))
+                .position(MapFactory.getInstance().createLatLng(options.getPosition()))
                 .rotation(options.getRotation())
                 .snippet(options.getSnippet())
                 .title(options.getTitle())
                 .visible(options.isVisible())
                 .zIndex(options.getZIndex());
+        if (options.getIcon() == R.drawable.map_baseline_place_black_48) {
+            Bitmap original = BitmapFactory.decodeResource(mView.getResources(), options.getIcon());
+            Bitmap tinted = MapUtil.getInstance().tintImage(original, ContextCompat.getColor(mView.getContext(),
+                    android.R.color.holo_red_light));
+            markerOptions.icon(MapFactory.getInstance().createBitmapDescriptor(tinted));
+        } else {
+            markerOptions.icon(MapFactory.getInstance().createBitmapDescriptor(options.getIcon()));
+        }
+        return markerOptions;
     }
 
     @Override
@@ -182,6 +213,11 @@ public class GoogleMapView implements BaseMapView,
     }
 
     @Override
+    public void setOnMarkerDragListener(BaseOnMarkerDragListener listener) {
+        mOnMarkerDragListener = listener;
+    }
+
+    @Override
     public void onCameraIdle() {
         mPresenter.onCameraIdle();
         if (mOnCameraIdleListener != null) {
@@ -191,7 +227,7 @@ public class GoogleMapView implements BaseMapView,
 
     @Override
     public void onMapClick(LatLng latLng) {
-        GeoPoint geoPoint = Factory.getInstance().createGeoPoint(latLng);
+        GeoPoint geoPoint = MapFactory.getInstance().createGeoPoint(latLng);
         mPresenter.onMapClick(geoPoint);
         if (mOnMapClickListener != null) {
             mOnMapClickListener.onMapClick(geoPoint);
@@ -213,6 +249,27 @@ public class GoogleMapView implements BaseMapView,
         BaseMarker baseMarker = (GoogleMarker) marker.getTag();
         if (mOnInfoWindowClickListener != null) {
             mOnInfoWindowClickListener.onInfoWindowClick(baseMarker);
+        }
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        if (mOnMarkerDragListener != null) {
+            mOnMarkerDragListener.onMarkerDragStart((GoogleMarker) marker.getTag());
+        }
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+        if (mOnMarkerDragListener != null) {
+            mOnMarkerDragListener.onMarkerDrag((GoogleMarker) marker.getTag());
+        }
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        if (mOnMarkerDragListener != null) {
+            mOnMarkerDragListener.onMarkerDragEnd((GoogleMarker) marker.getTag());
         }
     }
 }

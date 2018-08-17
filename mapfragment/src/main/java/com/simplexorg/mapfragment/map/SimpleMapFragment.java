@@ -20,7 +20,7 @@ import com.simplexorg.mapfragment.model.BaseMapModel;
 import com.simplexorg.mapfragment.model.BaseModelDataRetriever;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
 
 
 public class SimpleMapFragment extends SupportMapFragment
@@ -33,7 +33,7 @@ public class SimpleMapFragment extends SupportMapFragment
     private Bundle mSavedInstanceState;
 
     public SimpleMapFragment() {
-        mMapView = Factory.getInstance().createDumbBaseMapView();
+        mMapView = MapFactory.getInstance().createDumbBaseMapView();
     }
 
     @Override
@@ -67,6 +67,10 @@ public class SimpleMapFragment extends SupportMapFragment
 
     public OnClickListener getMyLocationClickListener() throws SecurityException {
         return mMapView.getMyLocationClickListener();
+    }
+
+    public void setMyLocationEnabled(boolean enabled) {
+        mMapView.setMyLocationEnabled(enabled);
     }
 
     public Point projectToScreenLocation(GeoPoint geoPoint) {
@@ -109,10 +113,18 @@ public class SimpleMapFragment extends SupportMapFragment
         mMapView.setOnInfoWindowClickListener(listener);
     }
 
+    public void setOnMarkerDragListener(BaseOnMarkerDragListener listener) {
+        mMapView.setOnMarkerDragListener(listener);
+    }
+
     public void setDataRetriever(BaseModelDataRetriever<SelectableIconModel> dataRetriever) {
         if (mMapModel != null) {
             mMapModel.setDataRetriever(dataRetriever);
         }
+    }
+
+    public GeoPoint projectFromScreenLocation(Point point) {
+        return mMapView.projectFromScreenLocation(point);
     }
 
     /**
@@ -124,11 +136,15 @@ public class SimpleMapFragment extends SupportMapFragment
         }
     }
 
+    public void setMaxZoomPreference(float zoomPreference) {
+        mMapView.setMaxZoomPreference(zoomPreference);
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMapView = Factory.getInstance().createBaseMapView(googleMap, getView());
-        mMapModel = Factory.getInstance().createBaseMapModel();
-        mMapPresenter = Factory.getInstance().createBaseMapPresenter();
+        mMapView = MapFactory.getInstance().createBaseMapView(googleMap, getView());
+        mMapModel = MapFactory.getInstance().createBaseMapModel();
+        mMapPresenter = MapFactory.getInstance().createBaseMapPresenter();
         mMapPresenter.attach(mMapView, mMapModel);
         if (mOnMapReadyCallback != null) {
             mOnMapReadyCallback.onMapReady();

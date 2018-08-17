@@ -10,8 +10,8 @@ import com.simplexorg.mapfragment.model.BaseMapModel;
 import com.simplexorg.mapfragment.model.BaseMapModel.Observer;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.model.SelectableIconModel;
-import com.simplexorg.mapfragment.util.Factory;
-import com.simplexorg.mapfragment.util.Util;
+import com.simplexorg.mapfragment.util.MapFactory;
+import com.simplexorg.mapfragment.util.MapUtil;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
     private List<BaseMarker> mCurrentMarkers;
 
     public BasicMapPresenter() {
-        mCurrentMarkers = Factory.getInstance().createArrayList();
+        mCurrentMarkers = MapFactory.getInstance().createArrayList();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
         }
 
         if (mMapView.getCameraZoomLevel() >= MARKER_DISPLAY_ZOOM_LEVEL) {
-            if (Util.getInstance().distance(currentCameraCenter, mLastCameraCenter) > MAX_DEVIATION_DISTANCE) {
+            if (MapUtil.getInstance().distance(currentCameraCenter, mLastCameraCenter) > MAX_DEVIATION_DISTANCE) {
                 mLastCameraCenter = currentCameraCenter;
                 mMapModel.loadMarkers(currentCameraCenter, null);
             } else if (!mCurrentMarkersRefreshed) {
@@ -71,12 +71,20 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
     private void displayMarkers() {
         for (BaseMarker baseMarker : mCurrentMarkers) {
             baseMarker.displayMarker();
+            SelectableIconModel iconModel = getIconModel(baseMarker);
+            if (iconModel.getState() == SelectableIconModel.SELECTED) {
+                baseMarker.showInfoWindow();
+            }
         }
     }
 
     private void hideMarkers() {
         for (BaseMarker baseMarker : mCurrentMarkers) {
             baseMarker.hideMarker();
+            SelectableIconModel iconModel = getIconModel(baseMarker);
+            if (iconModel.getState() == SelectableIconModel.SELECTED) {
+                baseMarker.hideInfoWindow();
+            }
         }
     }
 
@@ -141,7 +149,7 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
 
     @Override
     public void onMarkerClick(BaseMarker marker) {
-        if (marker.getTag() == null) {
+        if (marker.getTag() == null || marker.getAlpha() <= 0) {
             return;
         }
         if (mLastClickedMarker == null) {
@@ -211,7 +219,8 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
                 baseMarker.setTag(model);
                 baseMarker.setTitle(model.getTitle());
                 baseMarker.setSnippet(model.getDescription());
-                if (model.getState() == SelectableIconModel.SELECTED) {
+                if (model.getState() == SelectableIconModel.SELECTED &&
+                        mMapView.getCameraZoomLevel() >= MARKER_DISPLAY_ZOOM_LEVEL) {
                     baseMarker.showInfoWindow();
                 }
                 break;

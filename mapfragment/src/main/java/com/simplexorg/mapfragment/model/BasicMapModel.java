@@ -3,7 +3,7 @@ package com.simplexorg.mapfragment.model;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
     private Observer mObserver;
 
     public BasicMapModel() {
-        mIconModels = Factory.getInstance().createArrayList();
+        mIconModels = MapFactory.getInstance().createArrayList();
     }
 
     @Override

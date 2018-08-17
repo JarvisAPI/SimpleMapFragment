@@ -2,20 +2,22 @@ package com.simplexorg.mapfragment.marker;
 
 import com.google.android.gms.maps.model.Marker;
 import com.simplexorg.mapfragment.model.GeoPoint;
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
 
 public class GoogleMarker extends BaseMarker {
     private Marker mMarker;
     private GeoPoint mPos;
+    private String mTitle;
+    private String mSnippet;
 
     public GoogleMarker(Marker marker) {
         mMarker = marker;
-        mPos = Factory.getInstance().createGeoPoint(mMarker.getPosition());
+        mPos = MapFactory.getInstance().createGeoPoint(mMarker.getPosition());
     }
 
     @Override
     public GeoPoint getPosition() {
-        mPos = Factory.getInstance().createGeoPoint(mMarker.getPosition());
+        mPos = MapFactory.getInstance().createGeoPoint(mMarker.getPosition());
         return mPos;
     }
 
@@ -36,21 +38,29 @@ public class GoogleMarker extends BaseMarker {
 
     @Override
     public void setPosition(GeoPoint geoPoint) {
-        mMarker.setPosition(Factory.getInstance().createLatLng(geoPoint));
+        mMarker.setPosition(MapFactory.getInstance().createLatLng(geoPoint));
     }
 
     @Override
     public void setTitle(String title) {
+        mTitle = title;
         mMarker.setTitle(title);
     }
 
     @Override
     public void setSnippet(String snippet) {
+        mSnippet = snippet;
         mMarker.setSnippet(snippet);
     }
 
     @Override
     public void showInfoWindow() {
+        if (mTitle != null) {
+            mMarker.setTitle(mTitle);
+        }
+        if (mSnippet != null) {
+            mMarker.setSnippet(mSnippet);
+        }
         mMarker.showInfoWindow();
     }
 
@@ -63,20 +73,20 @@ public class GoogleMarker extends BaseMarker {
 
     @Override
     public void setIcon(int resId) {
-        mMarker.setIcon(Factory.getInstance().createBitmapDescriptor(resId));
+        mMarker.setIcon(MapFactory.getInstance().createBitmapDescriptor(resId));
     }
 
     @Override
     public void hideMarker() {
         if (mMarker.getAlpha() >= 1) {
-            Factory.getInstance().createExitAnimator(this).start();
+            MapFactory.getInstance().createExitAnimator(this).start();
         }
     }
 
     @Override
     public void displayMarker() {
         if (mMarker.getAlpha() <= 0) {
-            Factory.getInstance().createEnterAnimator(this).start();
+            MapFactory.getInstance().createEnterAnimator(this).start();
         }
     }
 }

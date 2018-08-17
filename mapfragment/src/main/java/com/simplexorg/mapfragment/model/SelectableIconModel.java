@@ -5,7 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-import com.simplexorg.mapfragment.util.Factory;
+import com.simplexorg.mapfragment.util.MapFactory;
 
 public class SelectableIconModel implements Parcelable, BaseMarkerModel {
     private String mId;
@@ -51,7 +51,7 @@ public class SelectableIconModel implements Parcelable, BaseMarkerModel {
         if (mDefaultSelectableIconModel == null) {
             mDefaultSelectableIconModel = new SelectableIconModel();
             mDefaultSelectableIconModel.mId = "";
-            mDefaultSelectableIconModel.mPos = Factory.getInstance().createGeoPoint(Double.NaN, Double.NaN);
+            mDefaultSelectableIconModel.mPos = MapFactory.getInstance().createGeoPoint(Double.NaN, Double.NaN);
             mDefaultSelectableIconModel.mNormalResId = 0;
             mDefaultSelectableIconModel.mSelectedResId = 0;
             mDefaultSelectableIconModel.mState = NORMAL;
