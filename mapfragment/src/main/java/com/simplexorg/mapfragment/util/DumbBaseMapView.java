@@ -43,6 +43,12 @@ public class DumbBaseMapView implements BaseMapView {
     }
 
     @Override
+    public GeoPoint projectFromScreenLocation(Point point) {
+        Log.d(TAG,  PREFIX + "projectFromScreenLocation(Point point)");
+        return null;
+    }
+
+    @Override
     public GeoPoint getCameraLocationCenter() {
         Log.d(TAG,  PREFIX + "getCameraLocationCenter()");
         return null;

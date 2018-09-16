@@ -5,11 +5,17 @@ import android.os.Bundle;
 import java.util.List;
 
 public interface BaseMapModel<T> {
-    interface Observer {
+    interface Observer<T> {
         int UPDATE_MARKERS = 0;
         int UPDATE_MARKER_DATA = 1;
 
-        void update(int type, Object result, Object parcel);
+        /**
+         *
+         * @param type type of update.
+         * @param result the result.
+         * @param parcel the object passed in before.
+         */
+        void update(int type, T result, Object parcel);
     }
 
     /**
@@ -34,5 +40,5 @@ public interface BaseMapModel<T> {
 
     void onRestoreInstanceState(Bundle savedInstanceState);
 
-    void setObserver(Observer observer);
+    void setObserver(Observer<T> observer);
 }

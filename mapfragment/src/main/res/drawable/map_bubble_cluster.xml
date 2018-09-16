@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:angle="-90"
+        android:centerX=".5"
+        android:centerY="1"
+        android:endColor="@color/map_dark_pink"
+        android:startColor="@color/map_light_pink"/>
+
+    <size
+        android:height="64dp"
+        android:width="64dp"/>
+
+    <stroke
+        android:width="2dp"
+        android:color="@color/map_white"/>
+</shape>

@@ -19,7 +19,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
 
     private ArrayList<SelectableIconModel> mIconModels;
     private BaseModelDataRetriever<SelectableIconModel> mDataRetriever;
-    private Observer mObserver;
+    private Observer<SelectableIconModel> mObserver;
 
     public BasicMapModel() {
         mIconModels = Factory.getInstance().createArrayList();
@@ -41,7 +41,7 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
     }
 
     @Override
-    public void setObserver(Observer observer) {
+    public void setObserver(Observer<SelectableIconModel> observer) {
         mObserver = observer;
     }
 

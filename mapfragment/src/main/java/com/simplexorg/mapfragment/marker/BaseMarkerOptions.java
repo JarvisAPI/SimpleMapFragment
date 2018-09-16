@@ -1,6 +1,8 @@
 package com.simplexorg.mapfragment.marker;
 
 
+import android.graphics.Bitmap;
+
 import com.simplexorg.mapfragment.model.GeoPoint;
 
 public class BaseMarkerOptions {
@@ -10,6 +12,7 @@ public class BaseMarkerOptions {
     private boolean mDraggable;
     private boolean mFlat;
     private int mResId;
+    private Bitmap mIconBitmap;
     private float mWindowAnchorU;
     private float mWindowAnchorV;
     private GeoPoint mGeoPoint;
@@ -76,6 +79,15 @@ public class BaseMarkerOptions {
 
     public int getIcon() {
         return mResId;
+    }
+
+    public BaseMarkerOptions iconBitmap(Bitmap bitmap) {
+        mIconBitmap = bitmap;
+        return this;
+    }
+
+    public Bitmap getIconBitmap() {
+        return mIconBitmap;
     }
 
     public BaseMarkerOptions infoWindowAnchor(float u, float v) {

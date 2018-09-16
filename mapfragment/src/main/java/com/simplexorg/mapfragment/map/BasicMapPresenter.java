@@ -193,12 +193,12 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
         update(Observer.UPDATE_MARKERS, null, null);
         for (BaseMarker baseMarker : mCurrentMarkers) {
             // Looping to restore any info windows.
-            update(UPDATE_MARKER_DATA, baseMarker.getTag(), baseMarker);
+            update(UPDATE_MARKER_DATA, (SelectableIconModel) baseMarker.getTag(), baseMarker);
         }
     }
 
     @Override
-    public void update(int type, Object result, Object parcel) {
+    public void update(int type, SelectableIconModel model, Object parcel) {
         switch (type) {
             case Observer.UPDATE_MARKERS:
                 List<SelectableIconModel> newIconModels = mMapModel.getIconModels();
@@ -206,7 +206,6 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
                 displayMarkers();
                 break;
             case Observer.UPDATE_MARKER_DATA:
-                SelectableIconModel model = (SelectableIconModel) result;
                 BaseMarker baseMarker = (BaseMarker) parcel;
                 baseMarker.setTag(model);
                 baseMarker.setTitle(model.getTitle());

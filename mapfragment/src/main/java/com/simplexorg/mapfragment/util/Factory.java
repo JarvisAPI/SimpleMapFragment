@@ -2,6 +2,7 @@ package com.simplexorg.mapfragment.util;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
@@ -15,9 +16,10 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.simplexorg.mapfragment.cluster.ClusterMapPresenter;
+import com.simplexorg.mapfragment.cluster.IconMaker;
 import com.simplexorg.mapfragment.map.BaseMapPresenter;
 import com.simplexorg.mapfragment.map.BaseMapView;
-import com.simplexorg.mapfragment.map.BasicMapPresenter;
 import com.simplexorg.mapfragment.map.GoogleMapView;
 import com.simplexorg.mapfragment.marker.BaseMarker;
 import com.simplexorg.mapfragment.marker.BaseMarkerAnimator;
@@ -61,12 +63,20 @@ public class Factory {
         return new DumbBaseMapView();
     }
 
-    public BaseMapPresenter<SelectableIconModel> createBaseMapPresenter() {
-        return new BasicMapPresenter();
+    public BaseMapPresenter<SelectableIconModel> createBaseMapPresenter(Context context) {
+        return new ClusterMapPresenter(context);
+    }
+
+    public IconMaker createIconMaker(Context context) {
+        return new IconMaker(context);
     }
 
     public BitmapDescriptor createBitmapDescriptor(int resId) {
         return BitmapDescriptorFactory.fromResource(resId);
+    }
+
+    public BitmapDescriptor createBitmapDescriptor(Bitmap bitmap) {
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     public MapStyleOptions createMapStyleOptions(Context context, int resId) {

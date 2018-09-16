@@ -128,7 +128,7 @@ public class SimpleMapFragment extends SupportMapFragment
     public void onMapReady(GoogleMap googleMap) {
         mMapView = Factory.getInstance().createBaseMapView(googleMap, getView());
         mMapModel = Factory.getInstance().createBaseMapModel();
-        mMapPresenter = Factory.getInstance().createBaseMapPresenter();
+        mMapPresenter = Factory.getInstance().createBaseMapPresenter(getContext());
         mMapPresenter.attach(mMapView, mMapModel);
         if (mOnMapReadyCallback != null) {
             mOnMapReadyCallback.onMapReady();

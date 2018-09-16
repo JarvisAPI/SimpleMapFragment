@@ -25,6 +25,8 @@ public interface BaseMapView {
 
     Point projectToScreenLocation(GeoPoint geoPoint);
 
+    GeoPoint projectFromScreenLocation(Point point);
+
     GeoPoint getCameraLocationCenter();
 
     void animateCamera(GeoPoint geoPoint, float zoomLevel);

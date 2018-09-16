@@ -84,6 +84,11 @@ public class GoogleMapView implements BaseMapView,
     }
 
     @Override
+    public GeoPoint projectFromScreenLocation(Point point) {
+        return Factory.getInstance().createGeoPoint(mMap.getProjection().fromScreenLocation(point));
+    }
+
+    @Override
     public GeoPoint getCameraLocationCenter() {
         return Factory.getInstance().createGeoPoint(mMap.getCameraPosition().target);
     }
@@ -131,12 +136,11 @@ public class GoogleMapView implements BaseMapView,
     }
 
     private MarkerOptions getMarkerOptions(BaseMarkerOptions options) {
-        return new MarkerOptions()
+        MarkerOptions markerOptions = new MarkerOptions()
                 .alpha(options.getAlpha())
                 .anchor(options.getAnchorU(), options.getAnchorV())
                 .draggable(options.isDraggable())
                 .flat(options.isFlat())
-                .icon(Factory.getInstance().createBitmapDescriptor(options.getIcon()))
                 .infoWindowAnchor(options.getInfoWindowAnchorU(), options.getInfoWindowAnchorV())
                 .position(Factory.getInstance().createLatLng(options.getPosition()))
                 .rotation(options.getRotation())
@@ -144,6 +148,13 @@ public class GoogleMapView implements BaseMapView,
                 .title(options.getTitle())
                 .visible(options.isVisible())
                 .zIndex(options.getZIndex());
+
+        if (options.getIcon() != 0) {
+            markerOptions.icon(Factory.getInstance().createBitmapDescriptor(options.getIcon()));
+        } else if (options.getIconBitmap() != null) {
+            markerOptions.icon(Factory.getInstance().createBitmapDescriptor(options.getIconBitmap()));
+        }
+        return markerOptions;
     }
 
     @Override

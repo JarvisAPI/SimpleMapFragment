@@ -7,7 +7,7 @@ import com.simplexorg.mapfragment.model.BaseMapModel;
 import com.simplexorg.mapfragment.model.BaseMapModel.Observer;
 import com.simplexorg.mapfragment.model.GeoPoint;
 
-public interface BaseMapPresenter<T> extends Observer {
+public interface BaseMapPresenter<T> extends Observer<T> {
     void onCameraIdle();
 
     void onMarkerClick(BaseMarker marker);
