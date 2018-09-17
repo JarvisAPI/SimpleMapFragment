@@ -20,9 +20,9 @@ public class BasicMapPresenter implements BaseMapPresenter<SelectableIconModel> 
     @VisibleForTesting
     static final String PARCEL_CAM_LOC = "lastCamLoc";
     @VisibleForTesting
-    static float MARKER_DISPLAY_ZOOM_LEVEL = 17f;
+    static float MARKER_DISPLAY_ZOOM_LEVEL = 14f;
     @VisibleForTesting
-    static float MAX_DEVIATION_DISTANCE = 500;
+    static float MAX_DEVIATION_DISTANCE = 700;
 
     private BaseMapView mMapView;
     private BaseMapModel<SelectableIconModel> mMapModel;
