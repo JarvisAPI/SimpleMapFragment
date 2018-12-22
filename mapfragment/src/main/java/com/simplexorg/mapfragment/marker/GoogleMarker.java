@@ -73,7 +73,11 @@ public class GoogleMarker extends BaseMarker {
 
     @Override
     public void setIcon(int resId) {
-        mMarker.setIcon(MapFactory.getInstance().createBitmapDescriptor(resId));
+        try {
+            mMarker.setIcon(MapFactory.getInstance().createBitmapDescriptor(resId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
