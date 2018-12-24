@@ -156,4 +156,10 @@ public class SimpleMapFragment extends SupportMapFragment
             mSavedInstanceState = null;
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mMapView = null;
+    }
 }
