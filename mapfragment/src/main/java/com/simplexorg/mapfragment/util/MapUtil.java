@@ -18,6 +18,12 @@ public class MapUtil {
 
     }
 
+    /**
+     * Get the distance between two locations on a map.
+     * @param geoPoint first point.
+     * @param otherGeoPoint second point.
+     * @return the distance between the two points in meters.
+     */
     public double distance(GeoPoint geoPoint, GeoPoint otherGeoPoint) {
         Location loc = new Location("geoPoint");
         Location otherLoc = new Location("otherGeoPoint");

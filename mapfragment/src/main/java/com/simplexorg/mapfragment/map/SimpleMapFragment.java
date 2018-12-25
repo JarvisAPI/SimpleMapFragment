@@ -162,4 +162,9 @@ public class SimpleMapFragment extends SupportMapFragment
         super.onDestroyView();
         mMapView = null;
     }
+
+
+    public boolean hasMakerWithinDistance(GeoPoint geoPoint, double range) {
+        return mMapModel.hasMarkerWithinDistance(geoPoint, range);
+    }
 }

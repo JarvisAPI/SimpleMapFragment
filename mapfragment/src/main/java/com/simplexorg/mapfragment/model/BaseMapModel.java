@@ -35,4 +35,12 @@ public interface BaseMapModel<T> {
     void onRestoreInstanceState(Bundle savedInstanceState);
 
     void setObserver(Observer observer);
+
+    /**
+     * Check to see if there are any markers that are currently within range of a geo location.
+     * @param geoPoint the location to check.
+     * @param range the range in meters.
+     * @return true if there is at least one marker within range, false otherwise.
+     */
+    boolean hasMarkerWithinDistance(GeoPoint geoPoint, double range);
 }

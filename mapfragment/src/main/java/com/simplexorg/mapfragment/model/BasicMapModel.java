@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 
 import com.simplexorg.mapfragment.util.MapFactory;
+import com.simplexorg.mapfragment.util.MapUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,5 +73,15 @@ public class BasicMapModel implements BaseMapModel<SelectableIconModel> {
     @Override
     public List<SelectableIconModel> getIconModels() {
         return mIconModels;
+    }
+
+    @Override
+    public boolean hasMarkerWithinDistance(GeoPoint geoPoint, double range) {
+        for (SelectableIconModel selectableIconModel : mIconModels) {
+            if (MapUtil.getInstance().distance(selectableIconModel.getPos(), geoPoint) <= range) {
+                return true;
+            }
+        }
+        return false;
     }
 }
