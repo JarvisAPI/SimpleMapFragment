@@ -47,8 +47,12 @@ public class SimpleMapFragment extends SupportMapFragment
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
-        mMapModel.onSaveInstanceState(outState);
-        mMapPresenter.onSaveInstanceState(outState);
+        if (mMapModel != null) {
+            mMapModel.onSaveInstanceState(outState);
+        }
+        if (mMapPresenter != null) {
+            mMapPresenter.onSaveInstanceState(outState);
+        }
     }
 
     @Override
