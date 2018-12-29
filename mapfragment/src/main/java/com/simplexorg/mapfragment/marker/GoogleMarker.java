@@ -1,5 +1,7 @@
 package com.simplexorg.mapfragment.marker;
 
+import android.support.annotation.NonNull;
+
 import com.google.android.gms.maps.model.Marker;
 import com.simplexorg.mapfragment.model.GeoPoint;
 import com.simplexorg.mapfragment.util.MapFactory;
@@ -49,6 +51,10 @@ public class GoogleMarker extends BaseMarker {
 
     @Override
     public void setSnippet(String snippet) {
+        if (snippet != null) {
+            final int MAX_STRING_LENGTH = 40;
+            snippet = ellipsize(snippet, MAX_STRING_LENGTH);
+        }
         mSnippet = snippet;
         mMarker.setSnippet(snippet);
     }
@@ -62,6 +68,15 @@ public class GoogleMarker extends BaseMarker {
             mMarker.setSnippet(mSnippet);
         }
         mMarker.showInfoWindow();
+    }
+
+    private String ellipsize(@NonNull String input, int maxLength) {
+        String dots = "...";
+        if (input.length() <= maxLength
+                || input.length() < dots.length()) {
+            return input;
+        }
+        return input.substring(0, maxLength - dots.length()).concat(dots);
     }
 
     @Override
